@@ -10,15 +10,18 @@ public class Triangulo {
     }
 
     public void tipoTriangulo() {
-        if (lado1 > 0 && lado2 > 0 && lado3 > 0) {
-            if (lado1 == lado2 && lado2 == lado3) {
-                System.out.println("Equilátero");
-            }else if((lado1 == lado2 && lado2!=lado3) || (lado2==lado3 && lado2!=lado1) || (lado1==lado3 && lado1!=lado2)){
-                System.out.println("Isósceles");
-            }else{
-                System.out.println("Escaleno");
+        if (lado1 + lado2 > lado3 && lado1 + lado3 > lado2 && lado2 + lado3 > lado1) {
+            if (lado1 > 0 && lado2 > 0 && lado3 > 0) {
+                if (lado1 == lado2 && lado2 == lado3) {
+                    System.out.println("Equilátero");
+                } else if ((lado1 == lado2 && lado2 != lado3) || (lado2 == lado3 && lado2 != lado1)
+                        || (lado1 == lado3 && lado1 != lado2)) {
+                    System.out.println("Isósceles");
+                } else {
+                    System.out.println("Escaleno");
+                }
             }
-        }
 
+        }
     }
 }
