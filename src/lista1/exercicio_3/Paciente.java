@@ -11,7 +11,7 @@ public class Paciente {
         if(imc < 18.5) {
             System.out.println("Abaixo do peso");
         }
-        /* Note que se chegou nesse else if abaixo, logo o peso era maior ou igual a 18.5, então
+        /* Note que se chegou nesse else if abaixo, logo o imc era maior ou igual a 18.5, então
            não é necessário colocar algo como: (imc >= 18.5 && imc <= 24.9).
            A mesmo coisa vale para os próximos condicionas.
         */

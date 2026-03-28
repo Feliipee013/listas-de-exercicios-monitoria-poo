@@ -1,3 +1,5 @@
+package lista1.exercicio_2;
+
 public class Triangulo {
     public double lado1;
     public double lado2;
