@@ -1,7 +1,4 @@
 package lista1.exercicio_9;
-
-import java.util.Locale;
-
 public class Main {
     public static void main(String[] args) {
         Disciplina disciplina = new Disciplina();
