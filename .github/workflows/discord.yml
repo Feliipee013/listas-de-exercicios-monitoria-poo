@@ -1,0 +1,88 @@
+name: Discord Notify
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Detect event type
+        id: event
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "is_pr=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Discord Message (Push)
+        if: steps.event.outputs.is_pr == 'false'
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+            \"username\": \"GitHub Bot\",
+            \"embeds\": [{
+              \"title\": \"🚀 Novo commit na main!\",
+              \"url\": \"https://github.com/${{ github.repository }}/commit/${{ github.sha }}\",
+              \"color\": 3447003,
+              \"fields\": [
+                {
+                  \"name\": \"📁 Repositório\",
+                  \"value\": \"${{ github.repository }}\"
+                },
+                {
+                  \"name\": \"👤 Autor\",
+                  \"value\": \"${{ github.actor }}\"
+                },
+                {
+                  \"name\": \"💬 Mensagem\",
+                  \"value\": \"${{ github.event.head_commit.message }}\"
+                },
+                {
+                  \"name\": \"🔗 Ver Commit\",
+                  \"value\": \"[Clique aqui](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\"
+                }
+              ]
+            }]
+          }" \
+          ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Send Discord Message (Merge PR)
+        if: steps.event.outputs.is_pr == 'true' && github.event.pull_request.merged == true
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+            \"username\": \"GitHub Bot\",
+            \"embeds\": [{
+              \"title\": \"🔀 Pull Request mergeada!\",
+              \"url\": \"${{ github.event.pull_request.html_url }}\",
+              \"color\": 3066993,
+              \"fields\": [
+                {
+                  \"name\": \"📁 Repositório\",
+                  \"value\": \"${{ github.repository }}\"
+                },
+                {
+                  \"name\": \"👤 Autor\",
+                  \"value\": \"${{ github.event.pull_request.user.login }}\"
+                },
+                {
+                  \"name\": \"📌 Título\",
+                  \"value\": \"${{ github.event.pull_request.title }}\"
+                },
+                {
+                  \"name\": \"🔗 Ver PR\",
+                  \"value\": \"[Clique aqui](${{ github.event.pull_request.html_url }})\"
+                }
+              ]
+            }]
+          }" \
+          ${{ secrets.DISCORD_WEBHOOK }}
