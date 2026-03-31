@@ -1,0 +1,61 @@
+name: Discord Notify
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set color based on commit message
+        id: color
+        run: |
+          MSG="${{ github.event.head_commit.message }}"
+
+          if [[ "$MSG" == *"feat"* ]]; then
+            echo "color=3066993" >> $GITHUB_OUTPUT
+          elif [[ "$MSG" == *"fix"* ]]; then
+            echo "color=16776960" >> $GITHUB_OUTPUT
+          elif [[ "$MSG" == *"hotfix"* || "$MSG" == *"bug"* ]]; then
+            echo "color=15158332" >> $GITHUB_OUTPUT
+          else
+            echo "color=3447003" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Discord Message
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+            \"username\": \"GitHub Bot\",
+            \"embeds\": [{
+              \"title\": \"🚀 Novo commit na main!\",
+              \"url\": \"https://github.com/${{ github.repository }}/commit/${{ github.sha }}\",
+              \"color\": ${{ steps.color.outputs.color }},
+              \"fields\": [
+                {
+                  \"name\": \"📁 Repositório\",
+                  \"value\": \"${{ github.repository }}\"
+                },
+                {
+                  \"name\": \"👤 Autor\",
+                  \"value\": \"${{ github.actor }}\"
+                },
+                {
+                  \"name\": \"💬 Mensagem\",
+                  \"value\": \"${{ github.event.head_commit.message }}\"
+                },
+                {
+                  \"name\": \"🔗 Ver Commit\",
+                  \"value\": \"[Clique aqui](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\"
+                }
+              ],
+              \"footer\": {
+                \"text\": \"Atualização automática via GitHub Actions\"
+              }
+            }]
+          }" \
+          ${{ secrets.DISCORD_WEBHOOK }}
