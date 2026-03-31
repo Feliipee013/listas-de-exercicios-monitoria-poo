@@ -4,28 +4,25 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [closed]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set color based on commit message
-        id: color
+      - name: Detect event type
+        id: event
         run: |
-          MSG="${{ github.event.head_commit.message }}"
-
-          if [[ "$MSG" == *"feat"* ]]; then
-            echo "color=3066993" >> $GITHUB_OUTPUT
-          elif [[ "$MSG" == *"fix"* ]]; then
-            echo "color=16776960" >> $GITHUB_OUTPUT
-          elif [[ "$MSG" == *"hotfix"* || "$MSG" == *"bug"* ]]; then
-            echo "color=15158332" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "is_pr=true" >> $GITHUB_OUTPUT
           else
-            echo "color=3447003" >> $GITHUB_OUTPUT
+            echo "is_pr=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Send Discord Message
+      - name: Send Discord Message (Push)
+        if: steps.event.outputs.is_pr == 'false'
         run: |
           curl -H "Content-Type: application/json" \
           -X POST \
@@ -34,7 +31,7 @@ jobs:
             \"embeds\": [{
               \"title\": \"🚀 Novo commit na main!\",
               \"url\": \"https://github.com/${{ github.repository }}/commit/${{ github.sha }}\",
-              \"color\": ${{ steps.color.outputs.color }},
+              \"color\": 3447003,
               \"fields\": [
                 {
                   \"name\": \"📁 Repositório\",
@@ -52,10 +49,40 @@ jobs:
                   \"name\": \"🔗 Ver Commit\",
                   \"value\": \"[Clique aqui](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\"
                 }
-              ],
-              \"footer\": {
-                \"text\": \"Atualização automática via GitHub Actions\"
-              }
+              ]
+            }]
+          }" \
+          ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Send Discord Message (Merge PR)
+        if: steps.event.outputs.is_pr == 'true' && github.event.pull_request.merged == true
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+            \"username\": \"GitHub Bot\",
+            \"embeds\": [{
+              \"title\": \"🔀 Pull Request mergeada!\",
+              \"url\": \"${{ github.event.pull_request.html_url }}\",
+              \"color\": 3066993,
+              \"fields\": [
+                {
+                  \"name\": \"📁 Repositório\",
+                  \"value\": \"${{ github.repository }}\"
+                },
+                {
+                  \"name\": \"👤 Autor\",
+                  \"value\": \"${{ github.event.pull_request.user.login }}\"
+                },
+                {
+                  \"name\": \"📌 Título\",
+                  \"value\": \"${{ github.event.pull_request.title }}\"
+                },
+                {
+                  \"name\": \"🔗 Ver PR\",
+                  \"value\": \"[Clique aqui](${{ github.event.pull_request.html_url }})\"
+                }
+              ]
             }]
           }" \
           ${{ secrets.DISCORD_WEBHOOK }}
