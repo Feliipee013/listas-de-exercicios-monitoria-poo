@@ -3,7 +3,7 @@ package lista1.exercicio_7;
 public class Autenticador {
     public void validar(String senha) {
         /* Uma outra maneira que consegui pensar de resolver para qq constante como String,
-            sem a criação de uma classe auxiliar para checar, foi através do regex(que seria com as classes Pattern e Matcher).
+            sem a criação de um método auxiliar para checar, foi através do regex(que seria com as classes Pattern e Matcher).
             Voces irão ver regex em LFA, mas caso queiram ver sobre regex em java, sugiro que procure no yt.
 
             O if poderia ser só isso com regex(o método matches da classe String usa as classes Pattern e Matcher)
