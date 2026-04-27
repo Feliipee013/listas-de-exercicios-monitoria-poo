@@ -1,4 +1,4 @@
-package lista_04.exercicio_4;
+package lista_04.exercicio_04;
 
 public class Tempo {
     private int horas, minutos, segundos;
