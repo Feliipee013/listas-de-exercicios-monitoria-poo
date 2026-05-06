@@ -1,0 +1,27 @@
+package lista_05.exercicio_03;
+
+public class Senha {
+    private int numero;
+    private String tipo;
+
+    public Senha(int numero, String tipo) {
+        this.numero = numero;
+        this.tipo = tipo;
+    }
+
+    public int getNumero() {
+        return numero;
+    }
+
+    public void setNumero(int numero) {
+        this.numero = numero;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+}
